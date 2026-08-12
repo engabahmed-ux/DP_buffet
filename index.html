@@ -92,7 +92,7 @@
       <div class="form-group">
         <label>اختر المشروب:</label>
         <select id="drink" required>
-          <option value="">-- جاري تحميل المشروبات... --</option>
+          <option value="">-- جاري التحميل... --</option>
         </select>
       </div>
 
@@ -121,7 +121,7 @@
 
   <script>
     // 🎯 رابط الـ Web App الجديد الخاص بك
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx3o18sDqg8oh7uL0Uv--Tlcu981KJjOOfaABuLwPHrMRdfD3ct9SEFKhIKKcpwIKtw/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlU0vEEXnpuaeJnXCiDERyRbbEVPc3kIBbE1lthjqCdWAcZartMlWxc4vOZKXezv9J/exec";
 
     let currentTab = "guest";
 
@@ -133,10 +133,16 @@
       const drinkSelect = document.getElementById("drink");
       const drinkList = document.getElementById("drinkList");
       
-      drinkSelect.innerHTML = '<option value="">-- جاري التحميل... --</option>';
+      drinkSelect.innerHTML = '<option value="">-- جاري التحميل من الشيت... --</option>';
       drinkList.innerHTML = '<p style="font-size:13px;">جاري المزامنة مع الشيت...</p>';
 
-      window.onGetDrinksResponse = function(data) {
+      fetch(SCRIPT_URL + "?action=getDrinks", {
+        method: "GET",
+        mode: "cors",
+        redirect: "follow"
+      })
+      .then(response => response.json())
+      .then(data => {
         if (data.status === "success" && data.drinks && data.drinks.length > 0) {
           drinkSelect.innerHTML = '<option value="">-- اختر المشروب --</option>';
           drinkList.innerHTML = '';
@@ -153,23 +159,13 @@
             drinkList.appendChild(item);
           });
         } else {
-          drinkSelect.innerHTML = '<option value="">لا توجد مشروبات في الشيت</option>';
+          drinkSelect.innerHTML = '<option value="">لم يتم العثور على مشروبات بالشيت</option>';
         }
-        
-        const oldScript = document.getElementById("jsonp-drinks-script");
-        if (oldScript) oldScript.remove();
-      };
-
-      const oldScript = document.getElementById("jsonp-drinks-script");
-      if (oldScript) oldScript.remove();
-
-      const script = document.createElement("script");
-      script.id = "jsonp-drinks-script";
-      script.src = SCRIPT_URL + "?action=getDrinks&callback=onGetDrinksResponse";
-      script.onerror = function() {
+      })
+      .catch(err => {
+        console.error("Error loading drinks:", err);
         drinkSelect.innerHTML = '<option value="">تعذر الاتصال بالشيت</option>';
-      };
-      document.body.appendChild(script);
+      });
     }
 
     function toggleSidebar() {
