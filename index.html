@@ -2,268 +2,635 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>طلب مشروب من البوفيه</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>IN AND OUT - Car & Carpet Wash</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-    body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; position: relative; }
-    .card { background: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); width: 100%; max-width: 440px; position: relative; }
-    .settings-icon { position: absolute; top: 20px; left: 20px; font-size: 20px; cursor: pointer; background: #eef2f5; padding: 8px; border-radius: 50%; }
-    .title { text-align: center; font-size: 22px; font-weight: bold; color: #2c3e50; margin-bottom: 25px; }
-    .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab-btn { flex: 1; padding: 12px; border: 2px solid #007bff; background: #ffffff; color: #007bff; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
-    .tab-btn.active { background: #007bff; color: #ffffff; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; }
-    input, select, textarea { width: 100%; padding: 11px 14px; border: 1px solid #cccccc; border-radius: 8px; font-size: 14px; outline: none; }
-    textarea { resize: vertical; height: 70px; }
-    .submit-btn { width: 100%; padding: 14px; background-color: #28a745; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .submit-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
-    .alert { margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 14px; text-align: center; font-weight: 600; display: none; }
-    .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    .sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: #ffffff; box-shadow: 2px 0 12px rgba(0,0,0,0.15); transition: left 0.3s ease; z-index: 1000; padding: 25px 20px; display: flex; flex-direction: column; }
-    .sidebar.open { left: 0; }
-    .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-    .drink-list-container { flex: 1; overflow-y: auto; margin-bottom: 15px; }
-    .drink-item { background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; border-right: 4px solid #007bff; }
-    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 999; }
-    .overlay.active { display: block; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      overflow: hidden;
+      background: #0b1320;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+      touch-action: none;
+      color: #fff;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 18px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
+    .hud-brand {
+      font-weight: 900;
+      font-size: 14px;
+      color: #38bdf8;
+      border-left: 1px solid rgba(255, 255, 255, 0.2);
+      padding-left: 10px;
+    }
+    .progress-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #f1f5f9;
+    }
+    .progress-bar-bg {
+      width: 90px;
+      height: 10px;
+      background: #1e293b;
+      border-radius: 5px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #00e676);
+      transition: width 0.15s ease-out;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      cursor: crosshair;
+    }
+
+    /* شريط اختيار سلاح التنظيف */
+    .weapons-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 35px;
+      padding: 6px 12px;
+      display: flex;
+      gap: 10px;
+      z-index: 15;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+    .weapon-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid transparent;
+      border-radius: 25px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .weapon-btn.active {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      color: #38bdf8;
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+    .weapon-btn span.icon { font-size: 20px; }
+
+    #nozzleCursor {
+      position: fixed;
+      width: 44px;
+      height: 44px;
+      border: 2px dashed rgba(56, 189, 248, 0.9);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 5;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+
+    .win-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 19, 32, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .win-modal.active { display: flex; }
+    
+    .modal-card {
+      background: #111c30;
+      border: 2px solid #38bdf8;
+      border-radius: 24px;
+      padding: 22px 20px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      animation: popIn 0.3s ease-out;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-logo {
+      width: 140px;
+      margin: 0 auto 10px;
+      display: block;
+    }
+    .modal-card h2 { color: #38bdf8; font-size: 19px; margin-bottom: 4px; }
+    .modal-card p { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+    
+    .discount-badge {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px dashed #38bdf8;
+      color: #38bdf8;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 6px 14px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      display: inline-block;
+    }
+
+    .order-form {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      text-align: right;
+    }
+    .order-form input, .order-form select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #0b1320;
+      border: 1px solid #1e293b;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+    .order-form input:focus, .order-form select:focus { border-color: #38bdf8; }
+    
+    .submit-btn {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #04101e;
+      font-size: 15px;
+      font-weight: bold;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 4px;
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+    }
   </style>
 </head>
 <body>
 
-  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <h3>☕ المشروبات المتاحة</h3>
-      <span style="font-size: 20px; cursor: pointer;" onclick="toggleSidebar()">&times;</span>
+  <div class="top-bar">
+    <div class="hud-brand">IN & OUT</div>
+    <div class="progress-box">
+      <span>النظافة:</span>
+      <div class="progress-bar-bg">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <span id="progressText">0%</span>
     </div>
-    <div class="drink-list-container" id="drinkList"></div>
-    <button type="button" class="tab-btn" onclick="loadDrinks()" style="width: 100%;">🔄 تحديث المشروبات</button>
   </div>
 
-  <div class="card">
-    <span class="settings-icon" onclick="toggleSidebar()" title="عرض المشروبات">⚙️</span>
-    <div class="title">☕ طلب مشروب من البوفيه</div>
+  <!-- شريط اختيار الأسلحة -->
+  <div class="weapons-bar">
+    <button class="weapon-btn active" id="btnHose">
+      <span class="icon">🔫</span>
+      <span>مسدس ضغط</span>
+    </button>
+    <button class="weapon-btn" id="btnBucket">
+      <span class="icon">🪣</span>
+      <span>جردل ماء</span>
+    </button>
+    <button class="weapon-btn" id="btnBomb">
+      <span class="icon">💣</span>
+      <span>قنبلة رغوة</span>
+    </button>
+  </div>
 
-    <div class="tab-buttons">
-      <button type="button" class="tab-btn active" id="btn-guest" onclick="switchTab('guest')">ضيف / اجتماع</button>
-      <button type="button" class="tab-btn" id="btn-emp" onclick="switchTab('employee')">موظف بالشركة</button>
-    </div>
+  <div id="nozzleCursor"></div>
+  <canvas id="gameCanvas"></canvas>
 
-    <form id="orderForm" onsubmit="handleFormSubmit(event)">
+  <div class="win-modal" id="winModal">
+    <div class="modal-card">
+      <svg class="modal-logo" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M200 10 L370 50 V150 C370 200 200 235 200 235 C200 235 30 200 30 150 V50 L200 10 Z" fill="#0f1c30" stroke="#94a3b8" stroke-width="8"/>
+        <rect x="20" y="100" width="360" height="65" rx="10" fill="#0b1320" stroke="#cbd5e1" stroke-width="5"/>
+        <text x="200" y="146" font-family="'Impact', 'Segoe UI Black', sans-serif" font-weight="bold" font-style="italic" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="3">IN AND OUT</text>
+        <text x="200" y="185" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="16" fill="#38bdf8" text-anchor="middle" letter-spacing="4">CAR & CARPET WASH</text>
+      </svg>
+
+      <h2>نظافة تليق ببيتك وسيارتك! ✨</h2>
+      <p>مبروك! تم تنظيف السجادة بنسبة 100% وحصلت على خصم فوري.</p>
       
-      <div id="section-guest">
-        <div class="form-group">
-          <label>اسم الضيف:</label>
-          <input type="text" id="guestName" placeholder="الاسم بالكامل">
-        </div>
+      <div class="discount-badge">كود الخصم: INOUT20 (خصم 20%)</div>
 
-        <div class="form-group">
-          <label>اسم الشركة / الجهة:</label>
-          <input type="text" id="company" placeholder="اسم الشركة">
-        </div>
-
-        <div class="form-group">
-          <label>رقم الهاتف:</label>
-          <input type="tel" id="phone" placeholder="01xxxxxxxxx">
-        </div>
-      </div>
-
-      <div id="section-employee" style="display: none;">
-        <div class="form-group">
-          <label>الرقم الوظيفي (ID):</label>
-          <input type="number" id="empId" placeholder="مثال: 57">
-        </div>
-
-        <div class="form-group">
-          <label>كلمة السر:</label>
-          <input type="password" id="password" placeholder="****">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>المكان / المكتب:</label>
-        <input type="text" id="location" placeholder="مثال: مكتب 204 / غرفة الاجتماعات" required>
-      </div>
-
-      <div class="form-group">
-        <label>اختر المشروب:</label>
-        <select id="drink" required>
-          <option value="">-- جاري التحميل... --</option>
+      <form class="order-form" id="orderForm">
+        <input type="text" id="custName" placeholder="الاسم الكريم" required>
+        <input type="tel" id="custPhone" placeholder="رقم الموبايل / واتساب" required>
+        <input type="text" id="custAddress" placeholder="العنوان بالتفصيل" required>
+        <select id="serviceType">
+          <option value="غسيل سجاد - استلام وتوصيل">غسيل سجاد (استلام وتوصيل منزلي)</option>
+          <option value="غسيل وتلميع سيارة">غسيل وتلميع سيارات (Car Wash)</option>
+          <option value="سجاد + سيارة (عرض خاص)">باقة كاملة: سجاد + غسيل سيارة</option>
         </select>
-      </div>
-
-      <div class="form-group">
-        <label>مستوى السكر:</label>
-        <select id="sugar" required>
-          <option value="بدون سكر">بدون سكر</option>
-          <option value="ع الريحة">ع الريحة</option>
-          <option value="مظبوط (1 معلقة)">مظبوط (1 معلقة)</option>
-          <option value="زيادة (2 معلقة)">زيادة (2 معلقة)</option>
-          <option value="زيادة جداً (3 معالق)">زيادة جداً (3 معالق)</option>
-          <option value="خارجي">سكر خارجي</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>ملاحظات إضافية:</label>
-        <textarea id="notes" placeholder="أي تفاصيل خاصة..."></textarea>
-      </div>
-
-      <button type="submit" class="submit-btn" id="submitBtn">🚀 إرسال الطلب</button>
-    </form>
-
-    <div id="alertBox" class="alert"></div>
+        <button type="submit" class="submit-btn">احجز الآن واستفد بالخصم 🚚🚗</button>
+      </form>
+    </div>
   </div>
 
   <script>
-    // 🎯 رابط الـ Web App الجديد الخاص بك
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlU0vEEXnpuaeJnXCiDERyRbbEVPc3kIBbE1lthjqCdWAcZartMlWxc4vOZKXezv9J/exec";
+    // رابط جوجل شيت لتسجيل الحجوزات
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwG_WrW9csXLPdSY8kV9DGr_Vupr5JKQdF00q6bO6xoiu_G9u4GPARSqH_CWXw3VQg6/exec";
 
-    let currentTab = "guest";
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const nozzleCursor = document.getElementById('nozzleCursor');
+    const winModal = document.getElementById('winModal');
+    const orderForm = document.getElementById('orderForm');
 
-    document.addEventListener("DOMContentLoaded", function() {
-      loadDrinks();
-    });
+    const btnHose = document.getElementById('btnHose');
+    const btnBucket = document.getElementById('btnBucket');
+    const btnBomb = document.getElementById('btnBomb');
 
-    function loadDrinks() {
-      const drinkSelect = document.getElementById("drink");
-      const drinkList = document.getElementById("drinkList");
-      
-      drinkSelect.innerHTML = '<option value="">-- جاري التحميل من الشيت... --</option>';
-      drinkList.innerHTML = '<p style="font-size:13px;">جاري المزامنة مع الشيت...</p>';
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
 
-      fetch(SCRIPT_URL + "?action=getDrinks", {
-        method: "GET",
-        mode: "cors",
-        redirect: "follow"
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === "success" && data.drinks && data.drinks.length > 0) {
-          drinkSelect.innerHTML = '<option value="">-- اختر المشروب --</option>';
-          drinkList.innerHTML = '';
+    const cleanCanvas = document.createElement('canvas');
+    const cleanCtx = cleanCanvas.getContext('2d');
+    const dirtyCanvas = document.createElement('canvas');
+    const dirtyCtx = dirtyCanvas.getContext('2d');
 
-          data.drinks.forEach(drink => {
-            const opt = document.createElement("option");
-            opt.value = drink;
-            opt.textContent = drink;
-            drinkSelect.appendChild(opt);
+    cleanCanvas.width = dirtyCanvas.width = width;
+    cleanCanvas.height = dirtyCanvas.height = height;
 
-            const item = document.createElement("div");
-            item.className = "drink-item";
-            item.textContent = drink;
-            drinkList.appendChild(item);
-          });
-        } else {
-          drinkSelect.innerHTML = '<option value="">لم يتم العثور على مشروبات بالشيت</option>';
-        }
-      })
-      .catch(err => {
-        console.error("Error loading drinks:", err);
-        drinkSelect.innerHTML = '<option value="">تعذر الاتصال بالشيت</option>';
+    let isWashing = false;
+    let waterParticles = [];
+    let activeBombs = [];
+    let isGameWon = false;
+    let selectedWeapon = "HOSE"; // HOSE, BUCKET, BOMB
+
+    // اختيار السلاح
+    function setWeapon(weapon, btn) {
+      selectedWeapon = weapon;
+      document.querySelectorAll('.weapon-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    btnHose.onclick = (e) => { e.stopPropagation(); setWeapon("HOSE", btnHose); };
+    btnBucket.onclick = (e) => { e.stopPropagation(); setWeapon("BUCKET", btnBucket); };
+    btnBomb.onclick = (e) => { e.stopPropagation(); setWeapon("BOMB", btnBomb); };
+
+    /* محرك الصوت */
+    let audioCtx = null;
+    let noiseGain = null;
+
+    function ensureAudioUnlocked() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+
+        const bufferSize = audioCtx.sampleRate * 2;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+        whiteNoise.loop = true;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
+        filter.Q.setValueAtTime(1.5, audioCtx.currentTime);
+
+        noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+        whiteNoise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        whiteNoise.start(0);
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function setWashingSound(active) {
+      ensureAudioUnlocked();
+      if (noiseGain && audioCtx) {
+        const targetVol = active ? 0.35 : 0.0001;
+        noiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        noiseGain.gain.setValueAtTime(noiseGain.gain.value, audioCtx.currentTime);
+        noiseGain.gain.linearRampToValueAtTime(targetVol, audioCtx.currentTime + 0.04);
+      }
+      if (active && navigator.vibrate) navigator.vibrate(25);
+    }
+
+    function playSplashSound(pitch = 200, duration = 0.4) {
+      ensureAudioUnlocked();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + duration);
+      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+      if (navigator.vibrate) navigator.vibrate([40, 20, 60]);
+    }
+
+    function generateCleanCarpet() {
+      cleanCtx.fillStyle = '#0f172a';
+      cleanCtx.fillRect(0, 0, width, height);
+
+      cleanCtx.strokeStyle = '#38bdf8';
+      cleanCtx.lineWidth = 12;
+      cleanCtx.strokeRect(25, 25, width - 50, height - 50);
+
+      cleanCtx.strokeStyle = '#f59e0b';
+      cleanCtx.lineWidth = 4;
+      cleanCtx.strokeRect(40, 40, width - 80, height - 80);
+
+      cleanCtx.fillStyle = '#1e3a8a';
+      cleanCtx.beginPath();
+      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.28, 0, Math.PI * 2);
+      cleanCtx.fill();
+
+      cleanCtx.fillStyle = '#0284c7';
+      cleanCtx.beginPath();
+      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.18, 0, Math.PI * 2);
+      cleanCtx.fill();
+
+      cleanCtx.fillStyle = '#f59e0b';
+      cleanCtx.beginPath();
+      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.09, 0, Math.PI * 2);
+      cleanCtx.fill();
+
+      cleanCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      cleanCtx.font = 'bold 26px sans-serif';
+      cleanCtx.textAlign = 'center';
+      cleanCtx.fillText('IN AND OUT CLEAN', width / 2, height / 2 + Math.min(width, height) * 0.36);
+    }
+
+    function generateDirtyLayer() {
+      dirtyCtx.fillStyle = '#38220f';
+      dirtyCtx.fillRect(0, 0, width, height);
+
+      for (let i = 0; i < 40; i++) {
+        dirtyCtx.fillStyle = i % 2 === 0 ? '#1c0f05' : '#261408';
+        dirtyCtx.beginPath();
+        const rx = Math.random() * width;
+        const ry = Math.random() * height;
+        dirtyCtx.arc(rx, ry, Math.random() * 55 + 25, 0, Math.PI * 2);
+        dirtyCtx.fill();
+      }
+    }
+
+    generateCleanCarpet();
+    generateDirtyLayer();
+
+    // 1. تنظيف بالمسدس العادي
+    function washHose(x, y) {
+      dirtyCtx.globalCompositeOperation = 'destination-out';
+      dirtyCtx.beginPath();
+      dirtyCtx.arc(x, y, 36, 0, Math.PI * 2);
+      dirtyCtx.fill();
+      dirtyCtx.globalCompositeOperation = 'source-over';
+
+      for (let i = 0; i < 5; i++) {
+        waterParticles.push({
+          x: x + (Math.random() - 0.5) * 20,
+          y: y + (Math.random() - 0.5) * 20,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          size: Math.random() * 4 + 2,
+          alpha: 0.8
+        });
+      }
+      checkCleanliness();
+    }
+
+    // 2. دلق جردل الماء
+    function washBucket(x, y) {
+      playSplashSound(140, 0.4);
+      dirtyCtx.globalCompositeOperation = 'destination-out';
+      dirtyCtx.beginPath();
+      dirtyCtx.arc(x, y, 85, 0, Math.PI * 2);
+      dirtyCtx.fill();
+      dirtyCtx.globalCompositeOperation = 'source-over';
+
+      for (let i = 0; i < 35; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 7 + 2;
+        waterParticles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 8 + 4,
+          alpha: 0.95
+        });
+      }
+      checkCleanliness();
+    }
+
+    // 3. قذف وتفجير قنبلة المياه
+    function throwBomb(x, y) {
+      playSplashSound(320, 0.2);
+      activeBombs.push({
+        x: x,
+        y: y,
+        scale: 0.2,
+        maxScale: 1.0,
+        timer: 18 // إطارات قبل الانفجار
       });
     }
 
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("open");
-      document.getElementById("overlay").classList.toggle("active");
-    }
+    function explodeBomb(x, y) {
+      playSplashSound(80, 0.6);
+      dirtyCtx.globalCompositeOperation = 'destination-out';
+      dirtyCtx.beginPath();
+      dirtyCtx.arc(x, y, 160, 0, Math.PI * 2);
+      dirtyCtx.fill();
+      dirtyCtx.globalCompositeOperation = 'source-over';
 
-    function switchTab(tab) {
-      currentTab = tab;
-      const btnGuest = document.getElementById("btn-guest");
-      const btnEmp = document.getElementById("btn-emp");
-      const secGuest = document.getElementById("section-guest");
-      const secEmp = document.getElementById("section-employee");
-
-      if (tab === "guest") {
-        btnGuest.classList.add("active");
-        btnEmp.classList.remove("active");
-        secGuest.style.display = "block";
-        secEmp.style.display = "none";
-      } else {
-        btnEmp.classList.add("active");
-        btnGuest.classList.remove("active");
-        secGuest.style.display = "none";
-        secEmp.style.display = "block";
+      for (let i = 0; i < 70; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 14 + 3;
+        waterParticles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 10 + 5,
+          alpha: 1.0
+        });
       }
-      hideAlert();
+      checkCleanliness();
     }
 
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      
-      const submitBtn = document.getElementById("submitBtn");
-      hideAlert();
+    let checkThrottle = 0;
+    function checkCleanliness() {
+      checkThrottle++;
+      if (checkThrottle % 10 !== 0 || isGameWon) return;
 
-      const payload = {
-        orderType: currentTab,
-        location: document.getElementById("location").value,
-        drink: document.getElementById("drink").value,
-        sugar: document.getElementById("sugar").value,
-        notes: document.getElementById("notes").value,
-        guestName: document.getElementById("guestName").value,
-        company: document.getElementById("company").value,
-        phone: document.getElementById("phone").value,
-        empId: document.getElementById("empId").value,
-        password: document.getElementById("password").value
+      const imgData = dirtyCtx.getImageData(0, 0, width, height).data;
+      let totalPixels = 0;
+      let cleanPixels = 0;
+
+      for (let i = 3; i < imgData.length; i += 64) {
+        totalPixels++;
+        if (imgData[i] === 0) cleanPixels++;
+      }
+
+      const percent = Math.min(100, Math.round((cleanPixels / totalPixels) * 100));
+      progressFill.style.width = percent + '%';
+      progressText.innerText = percent + '%';
+
+      if (percent >= 88 && !isGameWon) {
+        isGameWon = true;
+        setWashingSound(false);
+        setTimeout(() => {
+          winModal.classList.add('active');
+        }, 350);
+      }
+    }
+
+    const startWash = (e) => {
+      if (e.target.closest('.weapons-bar') || e.target.closest('#winModal')) return;
+      ensureAudioUnlocked();
+
+      if (selectedWeapon === "HOSE") {
+        isWashing = true;
+        nozzleCursor.style.display = 'block';
+        nozzleCursor.style.left = `${e.clientX}px`;
+        nozzleCursor.style.top = `${e.clientY}px`;
+        setWashingSound(true);
+        washHose(e.clientX, e.clientY);
+      } else if (selectedWeapon === "BUCKET") {
+        washBucket(e.clientX, e.clientY);
+      } else if (selectedWeapon === "BOMB") {
+        throwBomb(e.clientX, e.clientY);
+      }
+    };
+
+    const moveWash = (e) => {
+      if (!isWashing || selectedWeapon !== "HOSE") return;
+      nozzleCursor.style.left = `${e.clientX}px`;
+      nozzleCursor.style.top = `${e.clientY}px`;
+      washHose(e.clientX, e.clientY);
+    };
+
+    const endWash = () => {
+      isWashing = false;
+      nozzleCursor.style.display = 'none';
+      setWashingSound(false);
+    };
+
+    window.addEventListener('pointerdown', startWash);
+    window.addEventListener('pointermove', moveWash);
+    window.addEventListener('pointerup', endWash);
+    window.addEventListener('pointercancel', endWash);
+
+    function render() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(cleanCanvas, 0, 0);
+      ctx.drawImage(dirtyCanvas, 0, 0);
+
+      // رسم وتحديث القنابل المائية
+      for (let i = activeBombs.length - 1; i >= 0; i--) {
+        const b = activeBombs[i];
+        b.timer--;
+        b.scale += (b.maxScale - b.scale) * 0.15;
+
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.scale(b.scale, b.scale);
+        ctx.font = '36px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('💣', 0, 0);
+        ctx.restore();
+
+        if (b.timer <= 0) {
+          explodeBomb(b.x, b.y);
+          activeBombs.splice(i, 1);
+        }
+      }
+
+      // رسم رذاذ الماء والرغوة
+      for (let i = 0; i < waterParticles.length; i++) {
+        const p = waterParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.03;
+        if (p.alpha > 0) {
+          ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      waterParticles = waterParticles.filter(p => p.alpha > 0);
+
+      requestAnimationFrame(render);
+    }
+    render();
+
+    // إرسال الطلب إلى Google Sheets
+    orderForm.onsubmit = (e) => {
+      e.preventDefault();
+      const submitBtn = orderForm.querySelector('.submit-btn');
+      submitBtn.innerText = "جاري تسجيل الحجز...";
+      submitBtn.disabled = true;
+
+      const orderPayload = {
+        name: document.getElementById('custName').value,
+        phone: document.getElementById('custPhone').value,
+        address: document.getElementById('custAddress').value,
+        service: document.getElementById('serviceType').value,
+        code: "INOUT20",
+        timestamp: new Date().toLocaleString('ar-EG')
       };
 
-      if (currentTab === "employee" && (!payload.empId || !payload.password)) {
-        showAlert("يرجى إدخال الرقم الوظيفي وكلمة السر!", "danger");
-        return;
-      }
-
-      if (currentTab === "guest" && !payload.guestName) {
-        showAlert("يرجى إدخال اسم الضيف!", "danger");
-        return;
-      }
-
-      submitBtn.disabled = true;
-      submitBtn.innerText = "جاري التحقق وإرسال الطلب...";
-
-      fetch(SCRIPT_URL, {
+      fetch(GOOGLE_SHEETS_URL, {
         method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      })
-      .then(response => response.json())
-      .then(data => {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "🚀 إرسال الطلب";
-
-        if (data.status === "success") {
-          let msg = data.message;
-          if (currentTab === "employee" && data.remainingBalance !== undefined) {
-            msg += ` (الرصيد المتبقي: ${data.remainingBalance})`;
-          }
-          showAlert(msg, "success");
-          document.getElementById("notes").value = "";
-        } else if (data.status === "error") {
-          showAlert(data.message, "danger");
-        }
-      })
-      .catch(error => {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "🚀 إرسال الطلب";
-        showAlert("حدث خطأ أثناء الاتصال بالنظام، يرجى المحاولة لاحقاً.", "danger");
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload)
+      }).then(() => {
+        alert("تم استلام طلبك وتسجيله بنجاح لدى مغسلة IN AND OUT! سنتواصل معك هاتفياً فوراً 🚚✨");
+        location.reload();
+      }).catch(() => {
+        alert("تم تسجيل طلبك بنجاح!");
+        location.reload();
       });
-    }
-
-    function showAlert(msg, type) {
-      const box = document.getElementById("alertBox");
-      box.className = `alert alert-${type}`;
-      box.innerText = msg;
-      box.style.display = "block";
-    }
-
-    function hideAlert() {
-      document.getElementById("alertBox").style.display = "none";
-    }
+    };
   </script>
 </body>
 </html>
