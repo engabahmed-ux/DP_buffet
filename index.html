@@ -1,316 +1,419 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>IN AND OUT - Car & Carpet Wash</title>
+  <title>DP World Beverage Menu - Suez Canal</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       overflow: hidden;
-      background: #0b1320;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #d2b48c;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
       user-select: none;
       touch-action: none;
-      color: #fff;
     }
 
-    .top-bar {
+    #menuScreen {
       position: fixed;
-      top: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 8px 18px;
+      inset: 0;
+      background: radial-gradient(circle at center, #261f5c 0%, #15103a 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    
+    .dpworld-logo-box {
+      background: #1c1548;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 16px 24px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dpworld-logo-box svg {
+      width: 190px;
+      height: auto;
+      display: block;
+    }
+
+    #menuScreen h1 { font-size: 22px; margin-bottom: 6px; color: #00d285; text-align: center; font-weight: 700; }
+    #menuScreen p { font-size: 13px; color: #cbd5e1; margin-bottom: 22px; text-align: center; max-width: 290px; line-height: 1.4; }
+    
+    .drink-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      width: 100%;
+      max-width: 320px;
+      margin-bottom: 24px;
+    }
+    .drink-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .drink-card.selected {
+      border-color: #00d285;
+      background: rgba(0, 210, 133, 0.18);
+      transform: scale(1.04);
+      box-shadow: 0 0 16px rgba(0, 210, 133, 0.4);
+    }
+    .drink-card .icon { font-size: 32px; margin-bottom: 6px; }
+    .drink-card .name { font-size: 15px; font-weight: 600; color: #fff; }
+    
+    #startSailingBtn {
+      padding: 14px 38px;
+      background: linear-gradient(135deg, #00d285, #009e60);
+      color: #0c1829;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
       border-radius: 30px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 10;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-      white-space: nowrap;
+      box-shadow: 0 6px 20px rgba(0, 210, 133, 0.35);
+      cursor: pointer;
+      transition: opacity 0.2s;
     }
-    .hud-brand {
-      font-weight: 900;
-      font-size: 14px;
-      color: #38bdf8;
-      border-left: 1px solid rgba(255, 255, 255, 0.2);
-      padding-left: 10px;
-    }
-    .progress-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: bold;
-      color: #f1f5f9;
-    }
-    .progress-bar-bg {
-      width: 90px;
-      height: 10px;
-      background: #1e293b;
-      border-radius: 5px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #38bdf8, #00e676);
-      transition: width 0.15s ease-out;
+    #startSailingBtn:disabled {
+      background: #334155;
+      color: #64748b;
+      box-shadow: none;
+      cursor: not-allowed;
     }
 
     #gameCanvas {
       display: block;
       width: 100vw;
       height: 100vh;
-      cursor: crosshair;
     }
 
-    /* شريط اختيار سلاح التنظيف */
-    .weapons-bar {
+    .hud {
       position: fixed;
-      bottom: 20px;
+      top: 15px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(21, 16, 58, 0.94);
       backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 35px;
-      padding: 6px 12px;
-      display: flex;
-      gap: 10px;
-      z-index: 15;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-    }
-    .weapon-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 2px solid transparent;
+      color: #fff;
+      padding: 6px 16px;
       border-radius: 25px;
-      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      z-index: 5;
       display: flex;
       align-items: center;
-      gap: 6px;
-      color: #cbd5e1;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s;
+      gap: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      white-space: nowrap;
     }
-    .weapon-btn.active {
-      background: rgba(56, 189, 248, 0.25);
-      border-color: #38bdf8;
-      color: #38bdf8;
-      transform: scale(1.05);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-    }
-    .weapon-btn span.icon { font-size: 20px; }
-
-    #nozzleCursor {
-      position: fixed;
-      width: 44px;
-      height: 44px;
-      border: 2px dashed rgba(56, 189, 248, 0.9);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      display: none;
-      z-index: 5;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-    }
-
-    .win-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(11, 19, 32, 0.88);
-      backdrop-filter: blur(8px);
-      z-index: 50;
+    .hud-logo {
+      background: #1c1548;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 16px;
     }
-    .win-modal.active { display: flex; }
-    
-    .modal-card {
-      background: #111c30;
-      border: 2px solid #38bdf8;
-      border-radius: 24px;
-      padding: 22px 20px;
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-      animation: popIn 0.3s ease-out;
-    }
-    @keyframes popIn {
-      from { transform: scale(0.85); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .modal-logo {
-      width: 140px;
-      margin: 0 auto 10px;
+    .hud-logo svg {
+      width: 70px;
+      height: auto;
       display: block;
     }
-    .modal-card h2 { color: #38bdf8; font-size: 19px; margin-bottom: 4px; }
-    .modal-card p { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
-    
-    .discount-badge {
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px dashed #38bdf8;
-      color: #38bdf8;
-      font-size: 15px;
-      font-weight: bold;
-      padding: 6px 14px;
-      border-radius: 10px;
-      margin-bottom: 14px;
-      display: inline-block;
+
+    .horn-btn {
+      position: fixed;
+      bottom: 25px;
+      left: 20px;
+      width: 65px;
+      height: 65px;
+      background: linear-gradient(135deg, #00d285, #009e60);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+      z-index: 25;
+      cursor: pointer;
+      touch-action: none;
+    }
+    .horn-btn.active {
+      transform: scale(0.92);
+      background: #007a48;
+      box-shadow: 0 0 20px #00d285;
     }
 
-    .order-form {
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-      text-align: right;
+    .minimap-container {
+      position: fixed;
+      bottom: 20px;
+      right: 15px;
+      width: 75px;
+      height: 135px;
+      background: rgba(21, 16, 58, 0.9);
+      border: 2px solid #00d285;
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      pointer-events: none;
     }
-    .order-form input, .order-form select {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: #0b1320;
-      border: 1px solid #1e293b;
-      color: #fff;
-      font-size: 13px;
-      outline: none;
+    #minimapCanvas { width: 100%; height: 100%; }
+
+    #floatingJoystick {
+      display: none;
+      position: fixed;
+      width: 100px;
+      height: 100px;
+      margin-left: -50px;
+      margin-top: -50px;
+      background: rgba(21, 16, 58, 0.45);
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      z-index: 15;
+      pointer-events: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
-    .order-form input:focus, .order-form select:focus { border-color: #38bdf8; }
-    
-    .submit-btn {
-      background: linear-gradient(135deg, #38bdf8, #0284c7);
-      color: #04101e;
-      font-size: 15px;
-      font-weight: bold;
-      border: none;
-      padding: 12px;
-      border-radius: 10px;
+    #floatingKnob {
+      width: 42px;
+      height: 42px;
+      margin-left: -21px;
+      margin-top: -21px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      background: linear-gradient(135deg, #00d285, #007a48);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      transform: translate(0px, 0px);
+    }
+
+    .toss-btn {
+      display: none;
+      position: fixed;
+      bottom: 35px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #d32f2f, #b71c1c);
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      border: 2px solid #fff;
+      border-radius: 30px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+      z-index: 20;
       cursor: pointer;
-      margin-top: 4px;
-      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+    }
+
+    .success-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+      text-align: center;
+      z-index: 30;
+      width: 85%;
+      max-width: 320px;
+      border: 3px solid #00d285;
+    }
+    .success-modal h3 { color: #15103a; margin-bottom: 8px; font-size: 18px; }
+    .success-modal p { color: #475569; font-size: 14px; margin-bottom: 16px; line-height: 1.4; }
+    .success-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-another { background: #00d285; color: #0c1829; }
+    .btn-finish { background: #f1f5f9; color: #334155; }
+
+    .status-toast {
+      display: none;
+      position: fixed;
+      top: 65px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(220, 38, 38, 0.95);
+      color: white;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 20;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
   </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <div class="hud-brand">IN & OUT</div>
-    <div class="progress-box">
-      <span>النظافة:</span>
-      <div class="progress-bar-bg">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-      <span id="progressText">0%</span>
+  <!-- Menu Screen with Native DP World SVG Logo -->
+  <div id="menuScreen">
+    <div class="dpworld-logo-box">
+      <svg viewBox="0 0 340 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="dpPinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff2a6d" />
+            <stop offset="100%" stop-color="#9b1b59" />
+          </linearGradient>
+          <linearGradient id="dpGreenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00e676" />
+            <stop offset="50%" stop-color="#00b0ff" />
+            <stop offset="100%" stop-color="#00e676" />
+          </linearGradient>
+        </defs>
+        <path d="M 125 78 C 120 40 180 30 198 42 C 160 52 142 75 140 92 Z" fill="url(#dpPinkGrad)" />
+        <path d="M 68 106 C 92 88 128 116 168 114 C 205 110 228 80 234 68 C 240 88 226 122 195 132 C 158 142 108 122 68 106 Z" fill="url(#dpGreenGrad)" />
+        <path d="M 128 126 C 160 148 210 134 242 94 C 248 116 220 152 178 152 C 152 152 135 138 128 126 Z" fill="#ffffff" />
+        <text x="170" y="198" font-family="'Segoe UI', -apple-system, sans-serif" font-weight="900" font-size="38" fill="#ffffff" text-anchor="middle" letter-spacing="2">DP WORLD</text>
+      </svg>
     </div>
+    <h1>DP World Beverage Menu</h1>
+    <p>Select your drink, sail through the Suez Canal, and dock to order.</p>
+    <div class="drink-grid" id="drinkGrid"></div>
+    <button id="startSailingBtn" disabled>Start Sailing 🚢</button>
   </div>
 
-  <!-- شريط اختيار الأسلحة -->
-  <div class="weapons-bar">
-    <button class="weapon-btn active" id="btnHose">
-      <span class="icon">🔫</span>
-      <span>مسدس ضغط</span>
-    </button>
-    <button class="weapon-btn" id="btnBucket">
-      <span class="icon">🪣</span>
-      <span>جردل ماء</span>
-    </button>
-    <button class="weapon-btn" id="btnBomb">
-      <span class="icon">💣</span>
-      <span>قنبلة رغوة</span>
-    </button>
+  <!-- In-game HUD with DP World Logo -->
+  <div class="hud" id="gameHud">
+    <div class="hud-logo">
+      <svg viewBox="0 0 340 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="dpPinkGradHud" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff2a6d" />
+            <stop offset="100%" stop-color="#9b1b59" />
+          </linearGradient>
+          <linearGradient id="dpGreenGradHud" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00e676" />
+            <stop offset="50%" stop-color="#00b0ff" />
+            <stop offset="100%" stop-color="#00e676" />
+          </linearGradient>
+        </defs>
+        <path d="M 125 78 C 120 40 180 30 198 42 C 160 52 142 75 140 92 Z" fill="url(#dpPinkGradHud)" />
+        <path d="M 68 106 C 92 88 128 116 168 114 C 205 110 228 80 234 68 C 240 88 226 122 195 132 C 158 142 108 122 68 106 Z" fill="url(#dpGreenGradHud)" />
+        <path d="M 128 126 C 160 148 210 134 242 94 C 248 116 220 152 178 152 C 152 152 135 138 128 126 Z" fill="#ffffff" />
+        <text x="170" y="198" font-family="'Segoe UI', -apple-system, sans-serif" font-weight="900" font-size="38" fill="#ffffff" text-anchor="middle" letter-spacing="2">DP WORLD</text>
+      </svg>
+    </div>
+    <span id="hudText">Touch and drag anywhere to navigate the vessel</span>
   </div>
-
-  <div id="nozzleCursor"></div>
+  
+  <div class="status-toast" id="statusToast">❌ Anchor missed the dock! Try again</div>
+  
   <canvas id="gameCanvas"></canvas>
 
-  <div class="win-modal" id="winModal">
-    <div class="modal-card">
-      <svg class="modal-logo" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M200 10 L370 50 V150 C370 200 200 235 200 235 C200 235 30 200 30 150 V50 L200 10 Z" fill="#0f1c30" stroke="#94a3b8" stroke-width="8"/>
-        <rect x="20" y="100" width="360" height="65" rx="10" fill="#0b1320" stroke="#cbd5e1" stroke-width="5"/>
-        <text x="200" y="146" font-family="'Impact', 'Segoe UI Black', sans-serif" font-weight="bold" font-style="italic" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="3">IN AND OUT</text>
-        <text x="200" y="185" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="16" fill="#38bdf8" text-anchor="middle" letter-spacing="4">CAR & CARPET WASH</text>
-      </svg>
+  <button class="horn-btn" id="hornBtn" title="Ship Foghorn">📢</button>
 
-      <h2>نظافة تليق ببيتك وسيارتك! ✨</h2>
-      <p>مبروك! تم تنظيف السجادة بنسبة 100% وحصلت على خصم فوري.</p>
-      
-      <div class="discount-badge">كود الخصم: INOUT20 (خصم 20%)</div>
+  <div class="minimap-container">
+    <canvas id="minimapCanvas" width="75" height="135"></canvas>
+  </div>
 
-      <form class="order-form" id="orderForm">
-        <input type="text" id="custName" placeholder="الاسم الكريم" required>
-        <input type="tel" id="custPhone" placeholder="رقم الموبايل / واتساب" required>
-        <input type="text" id="custAddress" placeholder="العنوان بالتفصيل" required>
-        <select id="serviceType">
-          <option value="غسيل سجاد - استلام وتوصيل">غسيل سجاد (استلام وتوصيل منزلي)</option>
-          <option value="غسيل وتلميع سيارة">غسيل وتلميع سيارات (Car Wash)</option>
-          <option value="سجاد + سيارة (عرض خاص)">باقة كاملة: سجاد + غسيل سيارة</option>
-        </select>
-        <button type="submit" class="submit-btn">احجز الآن واستفد بالخصم 🚚🚗</button>
-      </form>
-    </div>
+  <div id="floatingJoystick">
+    <div id="floatingKnob"></div>
+  </div>
+
+  <button class="toss-btn" id="tossBtn">⚓ Drop Anchor to Dock!</button>
+
+  <!-- Success Modal -->
+  <div class="success-modal" id="successModal">
+    <div style="font-size: 40px; margin-bottom: 5px;">🎉</div>
+    <h3>Vessel Docked Successfully!</h3>
+    <p id="successMessage"></p>
+    <button class="success-btn btn-another" id="anotherDrinkBtn">Order Another Drink 🍹</button>
+    <button class="success-btn btn-finish" id="finishBtn">Continue Sailing ⚓</button>
   </div>
 
   <script>
-    // رابط جوجل شيت لتسجيل الحجوزات
-    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwG_WrW9csXLPdSY8kV9DGr_Vupr5JKQdF00q6bO6xoiu_G9u4GPARSqH_CWXw3VQg6/exec";
+    const FORMSPREE_ENDPOINT = "https://formspree.io/f/mnpalrno";
+
+    // تتبع فتح رابط الـ CV / اللعبة لأول مرة
+    window.addEventListener('load', () => {
+      fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Status: "🚀 Someone Opened your CV / Portfolio link!",
+          Timestamp: new Date().toLocaleString('en-US'),
+          Screen: `${window.innerWidth}x${window.innerHeight}`,
+          UserAgent: navigator.userAgent
+        })
+      }).catch(() => {});
+    });
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const progressFill = document.getElementById('progressFill');
-    const progressText = document.getElementById('progressText');
-    const nozzleCursor = document.getElementById('nozzleCursor');
-    const winModal = document.getElementById('winModal');
-    const orderForm = document.getElementById('orderForm');
+    const miniCanvas = document.getElementById('minimapCanvas');
+    const miniCtx = miniCanvas.getContext('2d');
 
-    const btnHose = document.getElementById('btnHose');
-    const btnBucket = document.getElementById('btnBucket');
-    const btnBomb = document.getElementById('btnBomb');
+    const hudText = document.getElementById('hudText');
+    const toast = document.getElementById('statusToast');
+    const tossBtn = document.getElementById('tossBtn');
+    const hornBtn = document.getElementById('hornBtn');
+    const menuScreen = document.getElementById('menuScreen');
+    const drinkGrid = document.getElementById('drinkGrid');
+    const startBtn = document.getElementById('startSailingBtn');
+    const successModal = document.getElementById('successModal');
+    const successMessage = document.getElementById('successMessage');
+    const anotherDrinkBtn = document.getElementById('anotherDrinkBtn');
+    const finishBtn = document.getElementById('finishBtn');
+
+    const floatingJoystick = document.getElementById('floatingJoystick');
+    const floatingKnob = document.getElementById('floatingKnob');
 
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
 
-    const cleanCanvas = document.createElement('canvas');
-    const cleanCtx = cleanCanvas.getContext('2d');
-    const dirtyCanvas = document.createElement('canvas');
-    const dirtyCtx = dirtyCanvas.getContext('2d');
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
 
-    cleanCanvas.width = dirtyCanvas.width = width;
-    cleanCanvas.height = dirtyCanvas.height = height;
+    /* Audio Synthesizer */
+    let audioCtx = null, engineOsc = null, engineGain = null, waveGain = null, sandNoiseGain = null;
+    let hornOsc1 = null, hornOsc2 = null, hornGain = null;
+    let isHonking = false;
+    let vibrateInterval = null;
 
-    let isWashing = false;
-    let waterParticles = [];
-    let activeBombs = [];
-    let isGameWon = false;
-    let selectedWeapon = "HOSE"; // HOSE, BUCKET, BOMB
-
-    // اختيار السلاح
-    function setWeapon(weapon, btn) {
-      selectedWeapon = weapon;
-      document.querySelectorAll('.weapon-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-    btnHose.onclick = (e) => { e.stopPropagation(); setWeapon("HOSE", btnHose); };
-    btnBucket.onclick = (e) => { e.stopPropagation(); setWeapon("BUCKET", btnBucket); };
-    btnBomb.onclick = (e) => { e.stopPropagation(); setWeapon("BOMB", btnBomb); };
-
-    /* محرك الصوت */
-    let audioCtx = null;
-    let noiseGain = null;
-
-    function ensureAudioUnlocked() {
+    function initAudio() {
       if (!audioCtx) {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
+
+        engineOsc = audioCtx.createOscillator();
+        engineGain = audioCtx.createGain();
+        engineOsc.type = 'sawtooth';
+        engineOsc.frequency.setValueAtTime(45, audioCtx.currentTime);
+        engineGain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+
+        const engineFilter = audioCtx.createBiquadFilter();
+        engineFilter.type = 'lowpass';
+        engineFilter.frequency.setValueAtTime(140, audioCtx.currentTime);
+
+        engineOsc.connect(engineFilter);
+        engineFilter.connect(engineGain);
+        engineGain.connect(audioCtx.destination);
+        engineOsc.start();
 
         const bufferSize = audioCtx.sampleRate * 2;
         const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
@@ -321,316 +424,720 @@
         whiteNoise.buffer = noiseBuffer;
         whiteNoise.loop = true;
 
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
-        filter.Q.setValueAtTime(1.5, audioCtx.currentTime);
+        const waveFilter = audioCtx.createBiquadFilter();
+        waveFilter.type = 'lowpass';
+        waveFilter.frequency.setValueAtTime(300, audioCtx.currentTime);
+        waveGain = audioCtx.createGain();
+        waveGain.gain.setValueAtTime(0.06, audioCtx.currentTime);
 
-        noiseGain = audioCtx.createGain();
-        noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        const sandFilter = audioCtx.createBiquadFilter();
+        sandFilter.type = 'bandpass';
+        sandFilter.frequency.setValueAtTime(800, audioCtx.currentTime);
+        sandNoiseGain = audioCtx.createGain();
+        sandNoiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
 
-        whiteNoise.connect(filter);
-        filter.connect(noiseGain);
-        noiseGain.connect(audioCtx.destination);
-        whiteNoise.start(0);
+        whiteNoise.connect(waveFilter);
+        waveFilter.connect(waveGain);
+        waveGain.connect(audioCtx.destination);
+
+        whiteNoise.connect(sandFilter);
+        sandFilter.connect(sandNoiseGain);
+        sandNoiseGain.connect(audioCtx.destination);
+
+        whiteNoise.start();
       }
-      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
     }
 
-    function setWashingSound(active) {
-      ensureAudioUnlocked();
-      if (noiseGain && audioCtx) {
-        const targetVol = active ? 0.35 : 0.0001;
-        noiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
-        noiseGain.gain.setValueAtTime(noiseGain.gain.value, audioCtx.currentTime);
-        noiseGain.gain.linearRampToValueAtTime(targetVol, audioCtx.currentTime + 0.04);
+    function startHorn() {
+      initAudio();
+      if (isHonking) return;
+      isHonking = true;
+      hornBtn.classList.add('active');
+
+      hornOsc1 = audioCtx.createOscillator();
+      hornOsc2 = audioCtx.createOscillator();
+      hornGain = audioCtx.createGain();
+
+      hornOsc1.type = 'sawtooth';
+      hornOsc2.type = 'triangle';
+
+      hornOsc1.frequency.setValueAtTime(110, audioCtx.currentTime);
+      hornOsc2.frequency.setValueAtTime(142, audioCtx.currentTime);
+
+      hornGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+      hornGain.gain.linearRampToValueAtTime(0.28, audioCtx.currentTime + 0.08);
+
+      hornOsc1.connect(hornGain);
+      hornOsc2.connect(hornGain);
+      hornGain.connect(audioCtx.destination);
+
+      hornOsc1.start();
+      hornOsc2.start();
+
+      if (navigator.vibrate) {
+        navigator.vibrate(200);
+        vibrateInterval = setInterval(() => { navigator.vibrate(200); }, 200);
       }
-      if (active && navigator.vibrate) navigator.vibrate(25);
     }
 
-    function playSplashSound(pitch = 200, duration = 0.4) {
-      ensureAudioUnlocked();
+    function stopHorn() {
+      if (!isHonking) return;
+      isHonking = false;
+      hornBtn.classList.remove('active');
+
+      if (vibrateInterval) {
+        clearInterval(vibrateInterval);
+        vibrateInterval = null;
+      }
+
+      if (hornGain && hornOsc1 && hornOsc2) {
+        hornGain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+        setTimeout(() => {
+          try {
+            hornOsc1.stop();
+            hornOsc2.stop();
+            hornOsc1.disconnect();
+            hornOsc2.disconnect();
+          } catch(e) {}
+        }, 130);
+      }
+    }
+
+    hornBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      startHorn();
+    });
+    hornBtn.addEventListener('pointerup', stopHorn);
+    hornBtn.addEventListener('pointerleave', stopHorn);
+    hornBtn.addEventListener('pointercancel', stopHorn);
+
+    function playAnchorLaunch() {
+      initAudio();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + duration);
-      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-      if (navigator.vibrate) navigator.vibrate([40, 20, 60]);
+      osc.stop(audioCtx.currentTime + 0.35);
     }
 
-    function generateCleanCarpet() {
-      cleanCtx.fillStyle = '#0f172a';
-      cleanCtx.fillRect(0, 0, width, height);
-
-      cleanCtx.strokeStyle = '#38bdf8';
-      cleanCtx.lineWidth = 12;
-      cleanCtx.strokeRect(25, 25, width - 50, height - 50);
-
-      cleanCtx.strokeStyle = '#f59e0b';
-      cleanCtx.lineWidth = 4;
-      cleanCtx.strokeRect(40, 40, width - 80, height - 80);
-
-      cleanCtx.fillStyle = '#1e3a8a';
-      cleanCtx.beginPath();
-      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.28, 0, Math.PI * 2);
-      cleanCtx.fill();
-
-      cleanCtx.fillStyle = '#0284c7';
-      cleanCtx.beginPath();
-      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.18, 0, Math.PI * 2);
-      cleanCtx.fill();
-
-      cleanCtx.fillStyle = '#f59e0b';
-      cleanCtx.beginPath();
-      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.09, 0, Math.PI * 2);
-      cleanCtx.fill();
-
-      cleanCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-      cleanCtx.font = 'bold 26px sans-serif';
-      cleanCtx.textAlign = 'center';
-      cleanCtx.fillText('IN AND OUT CLEAN', width / 2, height / 2 + Math.min(width, height) * 0.36);
-    }
-
-    function generateDirtyLayer() {
-      dirtyCtx.fillStyle = '#38220f';
-      dirtyCtx.fillRect(0, 0, width, height);
-
-      for (let i = 0; i < 40; i++) {
-        dirtyCtx.fillStyle = i % 2 === 0 ? '#1c0f05' : '#261408';
-        dirtyCtx.beginPath();
-        const rx = Math.random() * width;
-        const ry = Math.random() * height;
-        dirtyCtx.arc(rx, ry, Math.random() * 55 + 25, 0, Math.PI * 2);
-        dirtyCtx.fill();
-      }
-    }
-
-    generateCleanCarpet();
-    generateDirtyLayer();
-
-    // 1. تنظيف بالمسدس العادي
-    function washHose(x, y) {
-      dirtyCtx.globalCompositeOperation = 'destination-out';
-      dirtyCtx.beginPath();
-      dirtyCtx.arc(x, y, 36, 0, Math.PI * 2);
-      dirtyCtx.fill();
-      dirtyCtx.globalCompositeOperation = 'source-over';
-
-      for (let i = 0; i < 5; i++) {
-        waterParticles.push({
-          x: x + (Math.random() - 0.5) * 20,
-          y: y + (Math.random() - 0.5) * 20,
-          vx: (Math.random() - 0.5) * 6,
-          vy: (Math.random() - 0.5) * 6,
-          size: Math.random() * 4 + 2,
-          alpha: 0.8
-        });
-      }
-      checkCleanliness();
-    }
-
-    // 2. دلق جردل الماء
-    function washBucket(x, y) {
-      playSplashSound(140, 0.4);
-      dirtyCtx.globalCompositeOperation = 'destination-out';
-      dirtyCtx.beginPath();
-      dirtyCtx.arc(x, y, 85, 0, Math.PI * 2);
-      dirtyCtx.fill();
-      dirtyCtx.globalCompositeOperation = 'source-over';
-
-      for (let i = 0; i < 35; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 7 + 2;
-        waterParticles.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: Math.random() * 8 + 4,
-          alpha: 0.95
-        });
-      }
-      checkCleanliness();
-    }
-
-    // 3. قذف وتفجير قنبلة المياه
-    function throwBomb(x, y) {
-      playSplashSound(320, 0.2);
-      activeBombs.push({
-        x: x,
-        y: y,
-        scale: 0.2,
-        maxScale: 1.0,
-        timer: 18 // إطارات قبل الانفجار
+    function playWinSound() {
+      initAudio();
+      [392, 523, 659, 784].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.12);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.12 + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + i * 0.12);
+        osc.stop(audioCtx.currentTime + i * 0.12 + 0.35);
       });
     }
 
-    function explodeBomb(x, y) {
-      playSplashSound(80, 0.6);
-      dirtyCtx.globalCompositeOperation = 'destination-out';
-      dirtyCtx.beginPath();
-      dirtyCtx.arc(x, y, 160, 0, Math.PI * 2);
-      dirtyCtx.fill();
-      dirtyCtx.globalCompositeOperation = 'source-over';
+    const drinksList = [
+      { id: 1, name: "Tea", icon: "🍵", color: "#6d4c41", worldY: -700, side: "west" },
+      { id: 2, name: "Coffee", icon: "☕", color: "#4e342e", worldY: -1400, side: "east" },
+      { id: 3, name: "Water", icon: "🧊", color: "#0288d1", worldY: -2100, side: "west" },
+      { id: 4, name: "Juice", icon: "🍹", color: "#ff8f00", worldY: -2800, side: "east" }
+    ];
 
-      for (let i = 0; i < 70; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 14 + 3;
-        waterParticles.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: Math.random() * 10 + 5,
-          alpha: 1.0
-        });
+    let targetDrink = null;
+    let gameState = "MENU";
+    let isStuckInMud = false;
+    let mudParticles = [];
+
+    function renderDrinkMenu() {
+      drinkGrid.innerHTML = "";
+      drinksList.forEach(drink => {
+        const card = document.createElement('div');
+        card.className = 'drink-card' + (targetDrink && targetDrink.id === drink.id ? ' selected' : '');
+        card.innerHTML = `<div class="icon">${drink.icon}</div><div class="name">${drink.name}</div>`;
+        card.onclick = () => {
+          document.querySelectorAll('.drink-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          targetDrink = drink;
+          startBtn.disabled = false;
+        };
+        drinkGrid.appendChild(card);
+      });
+    }
+    renderDrinkMenu();
+
+    startBtn.onclick = () => {
+      initAudio();
+      startHorn();
+      setTimeout(stopHorn, 600);
+      menuScreen.style.display = 'none';
+      gameState = "SAILING";
+      hudText.innerText = `Destination: ${targetDrink.name} Pier`;
+    };
+
+    anotherDrinkBtn.onclick = () => {
+      successModal.style.display = 'none';
+      targetDrink = null;
+      startBtn.disabled = true;
+      renderDrinkMenu();
+      menuScreen.style.display = 'flex';
+      gameState = "MENU";
+    };
+
+    finishBtn.onclick = () => {
+      successModal.style.display = 'none';
+      gameState = "SAILING";
+      hudText.innerText = "Enjoy sailing the Suez Canal";
+    };
+
+    const ship = {
+      worldX: width * 0.35,
+      worldY: 100,
+      width: 34,
+      height: 62,
+      speedX: 0,
+      speedY: 0,
+      maxSpeed: 4.2,
+      angle: -Math.PI / 2,
+      wake: []
+    };
+
+    let touchOrigin = null;
+    let directMove = { x: 0, y: 0, active: false };
+    const maxKnobDistance = 45;
+
+    window.addEventListener('pointerdown', (e) => {
+      initAudio();
+      if (gameState !== "SAILING") return;
+      if (e.target.closest('.minimap-container') || e.target.closest('#tossBtn') || e.target.closest('#hornBtn') || e.target.closest('#successModal')) return;
+
+      touchOrigin = { x: e.clientX, y: e.clientY };
+      floatingJoystick.style.left = `${e.clientX}px`;
+      floatingJoystick.style.top = `${e.clientY}px`;
+      floatingJoystick.style.display = 'block';
+      floatingKnob.style.transform = 'translate(0px, 0px)';
+      directMove.active = true;
+      directMove.x = 0;
+      directMove.y = 0;
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!touchOrigin || gameState !== "SAILING") return;
+
+      let dx = e.clientX - touchOrigin.x;
+      let dy = e.clientY - touchOrigin.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > maxKnobDistance) {
+        dx = (dx / dist) * maxKnobDistance;
+        dy = (dy / dist) * maxKnobDistance;
       }
-      checkCleanliness();
+
+      floatingKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+      
+      if (dist > 5) {
+        directMove.x = dx / maxKnobDistance;
+        directMove.y = dy / maxKnobDistance;
+      } else {
+        directMove.x = 0;
+        directMove.y = 0;
+      }
+    });
+
+    const removeFloatingJoystick = () => {
+      touchOrigin = null;
+      floatingJoystick.style.display = 'none';
+      directMove.active = false;
+      directMove.x = 0;
+      directMove.y = 0;
+    };
+
+    window.addEventListener('pointerup', removeFloatingJoystick);
+    window.addEventListener('pointercancel', removeFloatingJoystick);
+
+    const canalGeometry = {
+      westBank: width * 0.18,
+      westCanalEnd: width * 0.42,
+      eastCanalStart: width * 0.58,
+      eastBank: width * 0.82
+    };
+
+    function isInCrossCut(worldY) {
+      const cutInterval = 800;
+      const cutHeight = 160;
+      const modY = Math.abs(worldY) % cutInterval;
+      return modY < cutHeight;
     }
 
-    let checkThrottle = 0;
-    function checkCleanliness() {
-      checkThrottle++;
-      if (checkThrottle % 10 !== 0 || isGameWon) return;
+    const anchorGame = {
+      angle: 0,
+      swingSpeed: 0.02,
+      swingLimit: 0.55,
+      anchorDist: 0,
+      tossSpeed: 4.5,
+      targetX: 0,
+      targetY: 0,
+      targetRadius: 28
+    };
 
-      const imgData = dirtyCtx.getImageData(0, 0, width, height).data;
-      let totalPixels = 0;
-      let cleanPixels = 0;
-
-      for (let i = 3; i < imgData.length; i += 64) {
-        totalPixels++;
-        if (imgData[i] === 0) cleanPixels++;
-      }
-
-      const percent = Math.min(100, Math.round((cleanPixels / totalPixels) * 100));
-      progressFill.style.width = percent + '%';
-      progressText.innerText = percent + '%';
-
-      if (percent >= 88 && !isGameWon) {
-        isGameWon = true;
-        setWashingSound(false);
-        setTimeout(() => {
-          winModal.classList.add('active');
-        }, 350);
-      }
+    function showToast(msg) {
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2200);
     }
 
-    const startWash = (e) => {
-      if (e.target.closest('.weapons-bar') || e.target.closest('#winModal')) return;
-      ensureAudioUnlocked();
+    function drawCanal() {
+      const cameraY = ship.worldY - height * 0.7;
 
-      if (selectedWeapon === "HOSE") {
-        isWashing = true;
-        nozzleCursor.style.display = 'block';
-        nozzleCursor.style.left = `${e.clientX}px`;
-        nozzleCursor.style.top = `${e.clientY}px`;
-        setWashingSound(true);
-        washHose(e.clientX, e.clientY);
-      } else if (selectedWeapon === "BUCKET") {
-        washBucket(e.clientX, e.clientY);
-      } else if (selectedWeapon === "BOMB") {
-        throwBomb(e.clientX, e.clientY);
+      ctx.fillStyle = '#2d5a27';
+      ctx.fillRect(0, 0, canalGeometry.westBank, height);
+
+      ctx.fillStyle = '#3a6e33';
+      for (let y = 0; y < height; y += 60) {
+        ctx.fillRect(0, y, canalGeometry.westBank - 15, 45);
       }
-    };
 
-    const moveWash = (e) => {
-      if (!isWashing || selectedWeapon !== "HOSE") return;
-      nozzleCursor.style.left = `${e.clientX}px`;
-      nozzleCursor.style.top = `${e.clientY}px`;
-      washHose(e.clientX, e.clientY);
-    };
+      ctx.fillStyle = '#e2c589';
+      ctx.fillRect(canalGeometry.eastBank, 0, width - canalGeometry.eastBank, height);
 
-    const endWash = () => {
-      isWashing = false;
-      nozzleCursor.style.display = 'none';
-      setWashingSound(false);
-    };
+      const waterGrad = ctx.createLinearGradient(canalGeometry.westBank, 0, canalGeometry.eastBank, 0);
+      waterGrad.addColorStop(0, '#00838f');
+      waterGrad.addColorStop(0.5, '#0097a7');
+      waterGrad.addColorStop(1, '#00acc1');
+      ctx.fillStyle = waterGrad;
+      ctx.fillRect(canalGeometry.westBank, 0, canalGeometry.eastBank - canalGeometry.westBank, height);
 
-    window.addEventListener('pointerdown', startWash);
-    window.addEventListener('pointermove', moveWash);
-    window.addEventListener('pointerup', endWash);
-    window.addEventListener('pointercancel', endWash);
+      const islandWidth = canalGeometry.eastCanalStart - canalGeometry.westCanalEnd;
+      const islandX = canalGeometry.westCanalEnd;
 
-    function render() {
-      ctx.clearRect(0, 0, width, height);
-      ctx.drawImage(cleanCanvas, 0, 0);
-      ctx.drawImage(dirtyCanvas, 0, 0);
-
-      // رسم وتحديث القنابل المائية
-      for (let i = activeBombs.length - 1; i >= 0; i--) {
-        const b = activeBombs[i];
-        b.timer--;
-        b.scale += (b.maxScale - b.scale) * 0.15;
-
-        ctx.save();
-        ctx.translate(b.x, b.y);
-        ctx.scale(b.scale, b.scale);
-        ctx.font = '36px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('💣', 0, 0);
-        ctx.restore();
-
-        if (b.timer <= 0) {
-          explodeBomb(b.x, b.y);
-          activeBombs.splice(i, 1);
+      for (let screenY = -50; screenY < height + 50; screenY += 10) {
+        const currentWorldY = cameraY + screenY;
+        if (!isInCrossCut(currentWorldY)) {
+          ctx.fillStyle = '#d9b775';
+          ctx.fillRect(islandX, screenY, islandWidth, 11);
+          ctx.fillStyle = '#c7a35e';
+          ctx.fillRect(islandX + 10, screenY, islandWidth - 20, 11);
         }
       }
 
-      // رسم رذاذ الماء والرغوة
-      for (let i = 0; i < waterParticles.length; i++) {
-        const p = waterParticles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.alpha -= 0.03;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([15, 15]);
+
+      ctx.beginPath();
+      const midWest = (canalGeometry.westBank + canalGeometry.westCanalEnd) / 2;
+      ctx.moveTo(midWest, 0);
+      ctx.lineTo(midWest, height);
+      ctx.stroke();
+
+      ctx.beginPath();
+      const midEast = (canalGeometry.eastCanalStart + canalGeometry.eastBank) / 2;
+      ctx.moveTo(midEast, 0);
+      ctx.lineTo(midEast, height);
+      ctx.stroke();
+
+      ctx.setLineDash([]);
+    }
+
+    function drawShipWake() {
+      const cameraY = ship.worldY - height * 0.7;
+      for (let i = 0; i < ship.wake.length; i++) {
+        const p = ship.wake[i];
+        p.alpha -= 0.015;
+        p.size += 0.35;
         if (p.alpha > 0) {
-          ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y - cameraY, p.size, 0, Math.PI * 2);
           ctx.fill();
         }
       }
-      waterParticles = waterParticles.filter(p => p.alpha > 0);
+      ship.wake = ship.wake.filter(p => p.alpha > 0);
 
-      requestAnimationFrame(render);
+      for (let i = 0; i < mudParticles.length; i++) {
+        const m = mudParticles[i];
+        m.alpha -= 0.02;
+        m.x += m.vx;
+        m.y += m.vy;
+        if (m.alpha > 0) {
+          ctx.fillStyle = `rgba(161, 136, 127, ${m.alpha})`;
+          ctx.beginPath();
+          ctx.arc(m.x, m.y - cameraY, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      mudParticles = mudParticles.filter(m => m.alpha > 0);
     }
-    render();
 
-    // إرسال الطلب إلى Google Sheets
-    orderForm.onsubmit = (e) => {
-      e.preventDefault();
-      const submitBtn = orderForm.querySelector('.submit-btn');
-      submitBtn.innerText = "جاري تسجيل الحجز...";
-      submitBtn.disabled = true;
+    function drawStations() {
+      const cameraY = ship.worldY - height * 0.7;
 
-      const orderPayload = {
-        name: document.getElementById('custName').value,
-        phone: document.getElementById('custPhone').value,
-        address: document.getElementById('custAddress').value,
-        service: document.getElementById('serviceType').value,
-        code: "INOUT20",
-        timestamp: new Date().toLocaleString('ar-EG')
-      };
+      drinksList.forEach(st => {
+        const renderY = st.worldY - cameraY;
+        const isWest = st.side === 'west';
+        const canalEdge = isWest ? canalGeometry.westBank : canalGeometry.eastBank;
+        const dockWidth = 95;
+        const dockHeight = 70;
+        const drawX = isWest ? canalEdge - dockWidth - 6 : canalEdge + 6;
 
-      fetch(GOOGLE_SHEETS_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderPayload)
-      }).then(() => {
-        alert("تم استلام طلبك وتسجيله بنجاح لدى مغسلة IN AND OUT! سنتواصل معك هاتفياً فوراً 🚚✨");
-        location.reload();
-      }).catch(() => {
-        alert("تم تسجيل طلبك بنجاح!");
-        location.reload();
+        const isSelectedTarget = targetDrink && targetDrink.id === st.id;
+
+        if (renderY > -120 && renderY < height + 120) {
+          ctx.save();
+          if (isSelectedTarget) {
+            ctx.shadowColor = '#00d285';
+            ctx.shadowBlur = 18;
+          }
+
+          ctx.fillStyle = '#ffffff';
+          ctx.strokeStyle = isSelectedTarget ? '#00d285' : st.color;
+          ctx.lineWidth = isSelectedTarget ? 4 : 2.5;
+          ctx.beginPath();
+          ctx.roundRect(drawX, renderY - dockHeight / 2, dockWidth, dockHeight, 12);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = isSelectedTarget ? '#00d285' : st.color;
+          ctx.beginPath();
+          ctx.roundRect(drawX, renderY - dockHeight / 2, dockWidth, 8, [12, 12, 0, 0]);
+          ctx.fill();
+
+          ctx.font = '22px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(st.icon, drawX + dockWidth / 2, renderY + 4);
+
+          ctx.fillStyle = '#15103a';
+          ctx.font = 'bold 12px Segoe UI, sans-serif';
+          ctx.fillText(st.name, drawX + dockWidth / 2, renderY + 22);
+
+          ctx.restore();
+
+          if (isSelectedTarget && gameState === "SAILING") {
+            const dist = Math.hypot(ship.worldX - canalEdge, ship.worldY - st.worldY);
+            if (dist < 85) {
+              startAnchorGame(st, isWest ? canalEdge - 45 : canalEdge + 45, renderY);
+            }
+          }
+        }
       });
+    }
+
+    function drawShip() {
+      const screenX = ship.worldX;
+      const screenY = height * 0.7;
+
+      ctx.save();
+      if (isStuckInMud) {
+        ctx.translate((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4);
+      }
+      ctx.translate(screenX, screenY);
+      ctx.rotate(ship.angle + Math.PI / 2);
+
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+
+      ctx.fillStyle = isStuckInMud ? '#b71c1c' : '#d32f2f';
+      ctx.beginPath();
+      ctx.moveTo(0, -ship.height / 2);
+      ctx.bezierCurveTo(ship.width / 2, -ship.height / 4, ship.width / 2, ship.height / 2, 0, ship.height / 2);
+      ctx.bezierCurveTo(-ship.width / 2, ship.height / 2, -ship.width / 2, -ship.height / 4, 0, -ship.height / 2);
+      ctx.fill();
+      ctx.strokeStyle = '#801313';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(-ship.width / 3.5, -ship.height / 5, ship.width / 1.75, ship.height / 2.3, 4);
+      ctx.fill();
+      ctx.strokeStyle = '#15103a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawMinimap() {
+      miniCtx.clearRect(0, 0, 75, 135);
+      const totalY = -3000;
+
+      miniCtx.fillStyle = '#00acc1';
+      miniCtx.fillRect(12, 10, 20, 115);
+      miniCtx.fillRect(43, 10, 20, 115);
+
+      miniCtx.fillStyle = '#d9b775';
+      miniCtx.fillRect(32, 10, 11, 115);
+
+      miniCtx.fillStyle = '#00acc1';
+      miniCtx.fillRect(32, 35, 11, 15);
+      miniCtx.fillRect(32, 70, 11, 15);
+      miniCtx.fillRect(32, 105, 11, 15);
+
+      if (targetDrink) {
+        const targetProgress = (targetDrink.worldY - 100) / (totalY - 100);
+        const targetMarkerY = 120 - (targetProgress * 105);
+        const targetMarkerX = targetDrink.side === 'west' ? 22 : 53;
+        miniCtx.fillStyle = '#00d285';
+        miniCtx.beginPath();
+        miniCtx.arc(targetMarkerX, Math.max(12, Math.min(125, targetMarkerY)), 5, 0, Math.PI * 2);
+        miniCtx.fill();
+      }
+
+      const shipProgress = (ship.worldY - 100) / (totalY - 100);
+      const shipMarkerY = 120 - (shipProgress * 105);
+      const shipMarkerX = (ship.worldX / width) * 75;
+      miniCtx.fillStyle = '#d32f2f';
+      miniCtx.beginPath();
+      miniCtx.arc(Math.max(12, Math.min(63, shipMarkerX)), Math.max(12, Math.min(125, shipMarkerY)), 4, 0, Math.PI * 2);
+      miniCtx.fill();
+    }
+
+    function startAnchorGame(station, targetX, targetY) {
+      gameState = "AIMING";
+      anchorGame.targetX = targetX;
+      anchorGame.targetY = targetY;
+      anchorGame.anchorDist = 0;
+      anchorGame.angle = 0;
+
+      removeFloatingJoystick();
+      tossBtn.style.display = 'block';
+      hudText.innerText = `Drop anchor onto the ${station.name} bollard!`;
+    }
+
+    function drawAnchorMinigame() {
+      const isWest = targetDrink.side === 'west';
+      const startX = ship.worldX;
+      const startY = height * 0.7;
+
+      ctx.save();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#00d285';
+      ctx.fillStyle = 'rgba(0, 210, 133, 0.35)';
+      ctx.beginPath();
+      ctx.arc(anchorGame.targetX, anchorGame.targetY, anchorGame.targetRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.arc(anchorGame.targetX, anchorGame.targetY, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      if (gameState === "AIMING") {
+        anchorGame.angle += anchorGame.swingSpeed;
+        if (Math.abs(anchorGame.angle) > anchorGame.swingLimit) {
+          anchorGame.swingSpeed *= -1;
+        }
+      }
+
+      const baseAngle = isWest ? Math.PI : 0;
+      const currentAngle = baseAngle + anchorGame.angle;
+
+      if (gameState === "AIMING") {
+        ctx.strokeStyle = 'rgba(0, 210, 133, 0.85)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX + Math.cos(currentAngle) * 140, startY + Math.sin(currentAngle) * 140);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      const currentDist = gameState === "TOSSING" ? anchorGame.anchorDist : 20;
+      const anchorX = startX + Math.cos(currentAngle) * currentDist;
+      const anchorY = startY + Math.sin(currentAngle) * currentDist;
+
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(anchorX, anchorY);
+      ctx.stroke();
+
+      ctx.save();
+      ctx.translate(anchorX, anchorY);
+      ctx.rotate(currentAngle);
+      ctx.font = '26px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⚓', 0, 0);
+      ctx.restore();
+
+      if (gameState === "TOSSING") {
+        anchorGame.anchorDist += anchorGame.tossSpeed;
+        const maxDist = Math.hypot(anchorGame.targetX - startX, anchorGame.targetY - startY);
+
+        if (anchorGame.anchorDist >= maxDist) {
+          const hitDist = Math.hypot(anchorX - anchorGame.targetX, anchorY - anchorGame.targetY);
+          if (hitDist <= anchorGame.targetRadius + 10) {
+            handleSuccess();
+          } else {
+            handleFailure();
+          }
+        }
+      }
+    }
+
+    tossBtn.onclick = () => {
+      if (gameState === "AIMING") {
+        playAnchorLaunch();
+        gameState = "TOSSING";
+        tossBtn.style.display = 'none';
+      }
     };
+
+    function handleSuccess() {
+      gameState = "DOCKED";
+      playWinSound();
+      const selected = targetDrink.name;
+
+      fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Status: `☕ New Beverage Order: ${selected}`,
+          Item: selected,
+          Brand: "DP World Beverage Service - Suez Canal",
+          Timestamp: new Date().toLocaleString('en-US')
+        })
+      }).catch(() => {});
+
+      successMessage.innerText = `Your vessel is docked and your ${selected} request has been sent to the lounge team!`;
+      successModal.style.display = 'block';
+    }
+
+    function handleFailure() {
+      gameState = "DOCKED";
+      showToast("❌ Anchor missed the dock! Try again");
+      setTimeout(() => {
+        gameState = "AIMING";
+        anchorGame.anchorDist = 0;
+        tossBtn.style.display = 'block';
+        hudText.innerText = `Focus and aim for the target ring!`;
+      }, 1000);
+    }
+
+    function update() {
+      if (gameState === "SAILING") {
+        let maxSpd = ship.maxSpeed;
+        let accel = 0.25;
+
+        if (isStuckInMud) {
+          maxSpd = 1.0;
+          accel = 0.05;
+          ship.speedX *= 0.8;
+          ship.speedY *= 0.8;
+
+          if (Math.hypot(ship.speedX, ship.speedY) > 0.2) {
+            mudParticles.push({
+              x: ship.worldX + (Math.random() - 0.5) * 20,
+              y: ship.worldY + (Math.random() - 0.5) * 20,
+              vx: (Math.random() - 0.5) * 2,
+              vy: (Math.random() - 0.5) * 2,
+              size: Math.random() * 4 + 2,
+              alpha: 0.8
+            });
+          }
+        }
+
+        if (directMove.active && (directMove.x !== 0 || directMove.y !== 0)) {
+          const targetVelX = directMove.x * maxSpd;
+          const targetVelY = directMove.y * maxSpd;
+
+          ship.speedX += (targetVelX - ship.speedX) * accel;
+          ship.speedY += (targetVelY - ship.speedY) * accel;
+
+          const targetAngle = Math.atan2(directMove.y, directMove.x);
+          let diff = targetAngle - ship.angle;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          ship.angle += diff * 0.15;
+        } else {
+          ship.speedX *= isStuckInMud ? 0.75 : 0.92;
+          ship.speedY *= isStuckInMud ? 0.75 : 0.92;
+        }
+
+        ship.worldX += ship.speedX;
+        ship.worldY += ship.speedY;
+
+        const inWestCanal = ship.worldX >= canalGeometry.westBank && ship.worldX <= canalGeometry.westCanalEnd;
+        const inEastCanal = ship.worldX >= canalGeometry.eastCanalStart && ship.worldX <= canalGeometry.eastBank;
+        const inCut = isInCrossCut(ship.worldY) && (ship.worldX >= canalGeometry.westCanalEnd && ship.worldX <= canalGeometry.eastCanalStart);
+
+        if (!inWestCanal && !inEastCanal && !inCut) {
+          if (!isStuckInMud) hudText.innerText = "⚠️ Grounded in sand! Drag backwards to free the ship";
+          isStuckInMud = true;
+          if (ship.worldX < canalGeometry.westBank - 25) ship.worldX = canalGeometry.westBank - 25;
+          if (ship.worldX > canalGeometry.eastBank + 25) ship.worldX = canalGeometry.eastBank + 25;
+        } else {
+          if (isStuckInMud && targetDrink) hudText.innerText = `Destination: ${targetDrink.name} Pier`;
+          isStuckInMud = false;
+        }
+
+        const totalSpeed = Math.hypot(ship.speedX, ship.speedY);
+
+        if (audioCtx) {
+          const targetFreq = 40 + totalSpeed * 16;
+          engineOsc.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.1);
+          sandNoiseGain.gain.setTargetAtTime(isStuckInMud && totalSpeed > 0.2 ? 0.18 : 0, audioCtx.currentTime, 0.05);
+        }
+
+        if (totalSpeed > 0.6 && !isStuckInMud) {
+          ship.wake.push({
+            x: ship.worldX - Math.cos(ship.angle) * (ship.height / 2),
+            y: ship.worldY - Math.sin(ship.angle) * (ship.height / 2),
+            size: 3.5,
+            alpha: 0.5
+          });
+        }
+      }
+
+      ctx.clearRect(0, 0, width, height);
+      if (gameState !== "MENU") {
+        drawCanal();
+        drawShipWake();
+        drawStations();
+        drawShip();
+        drawMinimap();
+
+        if (gameState !== "SAILING" && targetDrink) {
+          drawAnchorMinigame();
+        }
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      directMove.active = true;
+      if (e.key === 'ArrowUp' || e.key === 'w') directMove.y = -1;
+      if (e.key === 'ArrowDown' || e.key === 's') directMove.y = 1;
+      if (e.key === 'ArrowLeft' || e.key === 'a') directMove.x = -1;
+      if (e.key === 'ArrowRight' || e.key === 'd') directMove.x = 1;
+      if (e.key === 'h' || e.key === 'H') startHorn();
+      if (e.key === ' ' && gameState === "AIMING") tossBtn.click();
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (['ArrowUp', 'ArrowDown', 'w', 's'].includes(e.key)) directMove.y = 0;
+      if (['ArrowLeft', 'ArrowRight', 'a', 'd'].includes(e.key)) directMove.x = 0;
+      if (e.key === 'h' || e.key === 'H') stopHorn();
+      if (directMove.x === 0 && directMove.y === 0) directMove.active = false;
+    });
+
+    update();
   </script>
 </body>
 </html>
